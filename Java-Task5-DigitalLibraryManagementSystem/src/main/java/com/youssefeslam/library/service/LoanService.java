@@ -28,19 +28,25 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
     private final FineRepository fineRepository;
+
     private final UserService userService;
+    private final ReservationService reservationService;
+
     private final Clock clock;
+
 
     public LoanService(
             LoanRepository loanRepository,
             BookRepository bookRepository,
             FineRepository fineRepository,
-            UserService userService
+            UserService userService,
+            ReservationService reservationService
     ) {
         this.loanRepository = loanRepository;
         this.bookRepository = bookRepository;
         this.fineRepository = fineRepository;
         this.userService = userService;
+        this.reservationService = reservationService;
         this.clock = Clock.systemUTC();
     }
 
@@ -117,6 +123,7 @@ public class LoanService {
 
         loan.markReturned(returnTime);
         book.returnCopy();
+        reservationService.notifyNextWaitingUser(book.getId());
 
         if (overdueDays > 0
                 && fineRepository.findByLoanId(loanId).isEmpty()) {

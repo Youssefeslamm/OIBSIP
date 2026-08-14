@@ -11,12 +11,19 @@ import java.util.Optional;
 public interface ReservationRepository
         extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findByUserIdOrderByReservedAtDesc(Long userId);
+    List<Reservation> findByUserIdOrderByReservedAtDesc(
+            Long userId
+    );
 
     boolean existsByUserIdAndBookIdAndStatusIn(
             Long userId,
             Long bookId,
             Collection<ReservationStatus> statuses
+    );
+
+    Optional<Reservation> findByIdAndUserId(
+            Long reservationId,
+            Long userId
     );
 
     Optional<Reservation>

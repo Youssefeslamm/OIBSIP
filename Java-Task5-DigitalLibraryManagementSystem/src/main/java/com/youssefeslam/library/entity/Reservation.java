@@ -51,7 +51,10 @@ public class Reservation {
             LocalDateTime currentTime,
             int collectionWindowDays
     ) {
-        Objects.requireNonNull(currentTime);
+        Objects.requireNonNull(
+                currentTime,
+                "Current time is required"
+        );
 
         if (collectionWindowDays <= 0) {
             throw new IllegalArgumentException(
@@ -66,7 +69,9 @@ public class Reservation {
         }
 
         status = ReservationStatus.AVAILABLE;
-        availableUntil = currentTime.plusDays(collectionWindowDays);
+        availableUntil = currentTime.plusDays(
+                collectionWindowDays
+        );
     }
 
     public void fulfill(LocalDateTime currentTime) {
@@ -159,6 +164,7 @@ public class Reservation {
         return cancelledAt;
     }
 
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -176,4 +182,6 @@ public class Reservation {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+
 }
