@@ -12,6 +12,9 @@ import com.youssefeslam.library.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.youssefeslam.library.exception.BusinessRuleException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.stream.Collectors;
 
@@ -78,5 +81,63 @@ public class UserService {
                         .map(role -> role.getName().name())
                         .collect(Collectors.toSet())
         );
+    }
+
+    public Page<UserResponse> findAll(Pageable pageable) {
+        return userRepository
+                .findAll(pageable)
+                .map(this::toResponse);
+    }
+
+    public UserResponse findById(Long userId) {
+        return toResponse(requireById(userId));
+    }
+
+    public User requireById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found with ID: " + userId
+                ));
+    }
+
+    @Transactional
+    public UserResponse disable(
+            Long userId,
+            String administratorEmail
+    ) {
+        User user = requireById(userId);
+
+        if (user.getEmail().equalsIgnoreCase(
+                administratorEmail
+        )) {
+            throw new BusinessRuleException(
+                    "Administrators cannot disable their own account"
+            );
+        }
+
+        if (!user.isEnabled()) {
+            throw new BusinessRuleException(
+                    "This account is already disabled"
+            );
+        }
+
+        user.setEnabled(false);
+
+        return toResponse(user);
+    }
+
+    @Transactional
+    public UserResponse enable(Long userId) {
+        User user = requireById(userId);
+
+        if (user.isEnabled()) {
+            throw new BusinessRuleException(
+                    "This account is already enabled"
+            );
+        }
+
+        user.setEnabled(true);
+
+        return toResponse(user);
     }
 }
