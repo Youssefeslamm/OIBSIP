@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/}">
+            Digital Library
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/login}">
+                Sign in
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="hero">
+    <div class="container hero-grid">
+        <section>
+            <div class="eyebrow">
+                Oasis Infobyte Java Task 5
+            </div>
+
+            <h1>Your library, available anywhere.</h1>
+
+            <p>
+                Browse books, manage loans, track due dates,
+                reserve unavailable titles, and review fines
+                from one secure platform.
+            </p>
+
+            <div class="nav-actions">
+                <a class="button" th:href="@{/login}">
+                    Open your account
+                </a>
+            </div>
+        </section>
+
+        <aside class="hero-card">
+            <div class="metric">
+                <strong>Search</strong>
+                <span>Find books by title, author, or category.</span>
+            </div>
+
+            <div class="metric">
+                <strong>Borrow</strong>
+                <span>Issue and return available titles.</span>
+            </div>
+
+            <div class="metric">
+                <strong>Reserve</strong>
+                <span>Join the queue for unavailable books.</span>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

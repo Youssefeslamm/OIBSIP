@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Manage Books | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/admin}">
+            Digital Library Admin
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/admin}">
+                Overview
+            </a>
+
+            <a class="button"
+               th:href="@{/admin/books/new}">
+                Add book
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Catalogue administration</div>
+        <h1 class="page-title">Manage books</h1>
+
+        <div class="alert alert-success"
+             th:if="${successMessage}"
+             th:text="${successMessage}">
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Copies</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="book : ${books.content}">
+                    <td th:text="${book.title()}">Title</td>
+                    <td th:text="${book.author()}">Author</td>
+                    <td th:text="${book.categoryName()}">Category</td>
+
+                    <td>
+                        <span th:text="${book.availableQuantity()}">0</span>
+                        /
+                        <span th:text="${book.totalQuantity()}">0</span>
+                    </td>
+
+                    <td>
+                        <span class="status"
+                              th:classappend="${book.archived()}
+                                  ? ' status-warning'
+                                  : ' status-success'"
+                              th:text="${book.archived()}
+                                  ? 'Archived'
+                                  : 'Active'">
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="inline-actions">
+                            <a class="button button-secondary"
+                               th:href="@{/admin/books/{id}/edit(
+                                   id=${book.id()}
+                               )}">
+                                Edit
+                            </a>
+
+                            <form th:unless="${book.archived()}"
+                                  th:action="@{/admin/books/{id}/archive(
+                                      id=${book.id()}
+                                  )}"
+                                  method="post">
+                                <button class="button button-danger"
+                                        type="submit">
+                                    Archive
+                                </button>
+                            </form>
+
+                            <form th:if="${book.archived()}"
+                                  th:action="@{/admin/books/{id}/restore(
+                                      id=${book.id()}
+                                  )}"
+                                  method="post">
+                                <button class="button" type="submit">
+                                    Restore
+                                </button>
+                            </form>
+                            <form th:action="@{/admin/books/{id}/delete(
+          id=${book.id()}
+      )}"
+                                  method="post"
+                                  onsubmit="return confirm(
+          'Permanently delete this book? This cannot be undone.'
+      )">
+                                <button class="button button-danger" type="submit">
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pagination"
+             th:if="${books.totalPages > 1}">
+            <a class="button button-secondary"
+               th:if="${books.hasPrevious()}"
+               th:href="@{/admin/books(page=${books.number - 1})}">
+                Previous
+            </a>
+
+            <span>
+                Page
+                <strong th:text="${books.number + 1}">1</strong>
+                of
+                <strong th:text="${books.totalPages}">1</strong>
+            </span>
+
+            <a class="button button-secondary"
+               th:if="${books.hasNext()}"
+               th:href="@{/admin/books(page=${books.number + 1})}">
+                Next
+            </a>
+        </nav>
+    </div>
+</main>
+</body>
+</html>

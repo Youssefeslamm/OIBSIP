@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Book Catalogue | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/dashboard}">
+            Digital Library
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/dashboard}">
+                Dashboard
+            </a>
+
+            <form th:action="@{/logout}" method="post">
+                <button class="button button-secondary"
+                        type="submit">
+                    Sign out
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Library catalogue</div>
+        <h1 class="page-title">Find your next book</h1>
+        <div class="alert alert-success"
+             th:if="${successMessage}"
+             th:text="${successMessage}">
+        </div>
+
+        <div class="alert alert-danger"
+             th:if="${errorMessage}"
+             th:text="${errorMessage}">
+        </div>
+
+        <form class="catalogue-filters"
+              method="get"
+              th:action="@{/books}">
+            <div class="filter-field">
+                <label for="query">Title or author</label>
+                <input id="query"
+                       name="query"
+                       type="search"
+                       placeholder="Search books..."
+                       th:value="${query}">
+            </div>
+
+            <div class="filter-field">
+                <label for="categoryId">Category</label>
+                <select id="categoryId" name="categoryId">
+                    <option value="">All categories</option>
+
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id()}"
+                            th:text="${category.name()}"
+                            th:selected="${selectedCategoryId != null
+                                and selectedCategoryId == category.id()}">
+                    </option>
+                </select>
+            </div>
+
+            <button class="button filter-button" type="submit">
+                Search
+            </button>
+
+            <a class="button button-secondary filter-button"
+               th:href="@{/books}">
+                Clear
+            </a>
+        </form>
+
+        <div class="results-header">
+            <p class="muted">
+                <strong th:text="${books.totalElements}">0</strong>
+                books found
+            </p>
+        </div>
+
+        <section class="book-grid"
+                 th:if="${!books.empty}">
+            <article class="book-card"
+                     th:each="book : ${books.content}">
+                <div class="book-category"
+                     th:text="${book.categoryName()}">
+                    Category
+                </div>
+
+                <h2 th:text="${book.title()}">
+                    Book title
+                </h2>
+
+                <p class="book-author">
+                    by
+                    <span th:text="${book.author()}">
+                        Author
+                    </span>
+                </p>
+
+                <dl class="book-details">
+                    <div>
+                        <dt>ISBN</dt>
+                        <dd th:text="${book.isbn()}">ISBN</dd>
+                    </div>
+
+                    <div>
+                        <dt>Availability</dt>
+                        <dd>
+                            <span th:if="${book.available()}"
+                                  class="status status-success">
+                                Available
+                            </span>
+
+                            <span th:unless="${book.available()}"
+                                  class="status status-warning">
+                                Unavailable
+                            </span>
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt>Copies</dt>
+                        <dd>
+                            <span th:text="${book.availableQuantity()}">
+                                0
+                            </span>
+                            /
+                            <span th:text="${book.totalQuantity()}">
+                                0
+                            </span>
+                        </dd>
+                    </div>
+                </dl>
+
+                <div class="book-actions">
+                    <form th:if="${book.available()}"
+                          th:action="@{/books/{id}/issue(id=${book.id()})}"
+                          method="post">
+                        <button class="button" type="submit">
+                            Issue book
+                        </button>
+                    </form>
+
+                    <form th:unless="${book.available()}"
+                          th:action="@{/books/{id}/reserve(id=${book.id()})}"
+                          method="post">
+                        <button class="button button-secondary"
+                                type="submit">
+                            Reserve
+                        </button>
+                    </form>
+                </div>
+            </article>
+        </section>
+
+        <section class="empty-state"
+                 th:if="${books.empty}">
+            <h2>No books found</h2>
+            <p class="muted">
+                Try another title, author, or category.
+            </p>
+        </section>
+
+        <nav class="pagination"
+             th:if="${books.totalPages > 1}">
+            <a class="button button-secondary"
+               th:if="${books.hasPrevious()}"
+               th:href="@{/books(
+                    page=${books.number - 1},
+                    size=${books.size},
+                    query=${query},
+                    categoryId=${selectedCategoryId}
+               )}">
+                Previous
+            </a>
+
+            <span>
+                Page
+                <strong th:text="${books.number + 1}">1</strong>
+                of
+                <strong th:text="${books.totalPages}">1</strong>
+            </span>
+
+            <a class="button button-secondary"
+               th:if="${books.hasNext()}"
+               th:href="@{/books(
+                    page=${books.number + 1},
+                    size=${books.size},
+                    query=${query},
+                    categoryId=${selectedCategoryId}
+               )}">
+                Next
+            </a>
+        </nav>
+    </div>
+</main>
+</body>
+</html>

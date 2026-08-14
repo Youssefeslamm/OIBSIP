@@ -18,29 +18,31 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http
+    ) throws Exception {
 
         return http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/**")
                 )
+
                 .authorizeHttpRequests(authorize -> authorize
 
-                        // Public endpoints
+                        // Public API endpoints
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/error"
                         ).permitAll()
 
-                        // Public catalogue browsing
+                        // Public catalogue browsing API
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/books/**",
                                 "/api/categories/**"
                         ).permitAll()
 
-                        // Administrator-only catalogue modifications
+                        // Administrator-only catalogue changes
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/books/**",
@@ -65,18 +67,50 @@ public class SecurityConfig {
                                 "/api/categories/**"
                         ).hasRole("ADMIN")
 
-                        // Future administrator endpoints
+                        // Administrator API
                         .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
                         // Remaining API endpoints require authentication
                         .requestMatchers("/api/**")
                         .authenticated()
 
+                        // Public web pages and static assets
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/error"
+                        ).permitAll()
+
+                        // Every other web page requires authentication
                         .anyRequest()
+                        .authenticated()
+                )
+
+                // Custom Thymeleaf login page
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl(
+                                "/dashboard",
+                                true
+                        )
                         .permitAll()
                 )
+
+                // Thymeleaf logout form
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+
+                // Retain Basic Auth for Postman
                 .httpBasic(Customizer.withDefaults())
+
                 .build();
     }
 }

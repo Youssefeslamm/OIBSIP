@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>My Loans | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/dashboard}">
+            Digital Library
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/books}">
+                Browse books
+            </a>
+            <a class="button button-secondary"
+               th:href="@{/dashboard}">
+                Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Borrowing history</div>
+        <h1 class="page-title">My loans</h1>
+
+        <div class="alert alert-success"
+             th:if="${successMessage}"
+             th:text="${successMessage}">
+        </div>
+
+        <div class="alert alert-danger"
+             th:if="${errorMessage}"
+             th:text="${errorMessage}">
+        </div>
+
+        <div class="table-wrapper" th:if="${!loans.empty}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Issued</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th>Fine</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="loan : ${loans}">
+                    <td th:text="${loan.bookTitle()}">Book</td>
+                    <td th:text="${#temporals.format(
+                        loan.issuedAt(), 'dd MMM yyyy')}">
+                    </td>
+                    <td th:text="${#temporals.format(
+                        loan.dueAt(), 'dd MMM yyyy')}">
+                    </td>
+                    <td th:text="${loan.status()}">ACTIVE</td>
+                    <td th:text="${loan.fineAmount()}">0.00</td>
+                    <td>
+                        <form th:if="${loan.status() == 'ACTIVE'
+                                      or loan.status() == 'OVERDUE'}"
+                              th:action="@{/my-loans/{id}/return(
+                                  id=${loan.id()}
+                              )}"
+                              method="post">
+                            <button class="button"
+                                    type="submit">
+                                Return
+                            </button>
+                        </form>
+
+                        <span class="muted"
+                              th:unless="${loan.status() == 'ACTIVE'
+                                          or loan.status() == 'OVERDUE'}">
+                            Completed
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section class="empty-state" th:if="${loans.empty}">
+            <h2>No loans yet</h2>
+            <a class="button" th:href="@{/books}">
+                Browse books
+            </a>
+        </section>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Contact | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/dashboard}">
+            Digital Library
+        </a>
+
+        <a class="button button-secondary"
+           th:href="@{/dashboard}">
+            Dashboard
+        </a>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container content-grid">
+        <section class="card">
+            <div class="eyebrow">Contact the library</div>
+            <h1 class="section-title">Send a message</h1>
+
+            <div class="alert alert-success"
+                 th:if="${successMessage}"
+                 th:text="${successMessage}">
+            </div>
+
+            <div class="alert alert-danger"
+                 th:if="${errorMessage}"
+                 th:text="${errorMessage}">
+            </div>
+
+            <form th:action="@{/contact}"
+                  th:object="${messageRequest}"
+                  method="post">
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+
+                    <input id="subject"
+                           type="text"
+                           th:field="*{subject}"
+                           maxlength="150">
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('subject')}"
+                           th:errors="*{subject}">
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message</label>
+
+                    <textarea id="message"
+                              th:field="*{message}"
+                              maxlength="5000"
+                              rows="8">
+                    </textarea>
+
+                    <small class="field-error"
+                           th:if="${#fields.hasErrors('message')}"
+                           th:errors="*{message}">
+                    </small>
+                </div>
+
+                <button class="button form-button" type="submit">
+                    Submit message
+                </button>
+            </form>
+        </section>
+
+        <section>
+            <div class="eyebrow">Message history</div>
+            <h2 class="section-title">Previous queries</h2>
+
+            <div class="message-list"
+                 th:if="${!messages.empty}">
+                <article class="card message-card"
+                         th:each="item : ${messages}">
+                    <div class="message-header">
+                        <strong th:text="${item.subject()}">
+                            Subject
+                        </strong>
+
+                        <span class="status"
+                              th:classappend="${item.status()
+                                              == 'RESOLVED'}
+                                  ? ' status-success'
+                                  : ' status-warning'"
+                              th:text="${item.status()}">
+                            OPEN
+                        </span>
+                    </div>
+
+                    <p th:text="${item.message()}">
+                        Message
+                    </p>
+
+                    <small class="muted"
+                           th:text="${#temporals.format(
+                               item.createdAt(),
+                               'dd MMM yyyy HH:mm'
+                           )}">
+                    </small>
+                </article>
+            </div>
+
+            <section class="empty-state"
+                     th:if="${messages.empty}">
+                <p class="muted">
+                    You have not submitted any messages.
+                </p>
+            </section>
+        </section>
+    </div>
+</main>
+</body>
+</html>

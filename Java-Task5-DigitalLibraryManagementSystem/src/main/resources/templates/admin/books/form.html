@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title th:text="${formTitle} + ' | Digital Library'">
+        Book form
+    </title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/admin}">
+            Digital Library Admin
+        </a>
+
+        <a class="button button-secondary"
+           th:href="@{/admin/books}">
+            Back to books
+        </a>
+    </div>
+</nav>
+
+<main class="auth-page">
+    <section class="auth-card wide-card">
+        <div class="eyebrow">Catalogue administration</div>
+        <h1 th:text="${formTitle}">Book form</h1>
+
+        <form th:action="${formAction}"
+              th:object="${bookForm}"
+              method="post">
+            <div class="alert alert-danger"
+                 th:if="${#fields.hasGlobalErrors()}">
+                <p th:each="error : ${#fields.globalErrors()}"
+                   th:text="${error}">
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input id="title" type="text" th:field="*{title}">
+                <small class="field-error"
+                       th:errors="*{title}"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Author</label>
+                <input id="author" type="text" th:field="*{author}">
+                <small class="field-error"
+                       th:errors="*{author}"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="isbn">ISBN</label>
+                <input id="isbn" type="text" th:field="*{isbn}">
+                <small class="field-error"
+                       th:errors="*{isbn}"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="categoryId">Category</label>
+
+                <select id="categoryId"
+                        th:field="*{categoryId}">
+                    <option value="">Select category</option>
+
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id()}"
+                            th:text="${category.name()}">
+                    </option>
+                </select>
+
+                <small class="field-error"
+                       th:errors="*{categoryId}"></small>
+            </div>
+
+            <div class="form-group">
+                <label for="totalQuantity">Total quantity</label>
+
+                <input id="totalQuantity"
+                       type="number"
+                       min="0"
+                       th:field="*{totalQuantity}">
+
+                <small class="field-error"
+                       th:errors="*{totalQuantity}"></small>
+            </div>
+
+            <button class="button form-button" type="submit">
+                Save book
+            </button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

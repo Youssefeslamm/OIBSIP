@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>My Reservations | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/dashboard}">
+            Digital Library
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/books}">
+                Browse books
+            </a>
+            <a class="button button-secondary"
+               th:href="@{/dashboard}">
+                Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Reservation queue</div>
+        <h1 class="page-title">My reservations</h1>
+
+        <div class="alert alert-success"
+             th:if="${successMessage}"
+             th:text="${successMessage}">
+        </div>
+
+        <div class="alert alert-danger"
+             th:if="${errorMessage}"
+             th:text="${errorMessage}">
+        </div>
+
+        <div class="table-wrapper"
+             th:if="${!reservations.empty}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Reserved</th>
+                    <th>Status</th>
+                    <th>Available until</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="reservation : ${reservations}">
+                    <td th:text="${reservation.bookTitle()}">
+                        Book
+                    </td>
+
+                    <td th:text="${#temporals.format(
+                        reservation.reservedAt(),
+                        'dd MMM yyyy HH:mm'
+                    )}">
+                    </td>
+
+                    <td th:text="${reservation.status()}">
+                        WAITING
+                    </td>
+
+                    <td>
+                        <span th:if="${reservation.availableUntil() != null}"
+                              th:text="${#temporals.format(
+                                  reservation.availableUntil(),
+                                  'dd MMM yyyy HH:mm'
+                              )}">
+                        </span>
+
+                        <span class="muted"
+                              th:unless="${reservation.availableUntil()
+                                         != null}">
+                            —
+                        </span>
+                    </td>
+
+                    <td>
+                        <form th:if="${reservation.status() == 'WAITING'
+                                      or reservation.status()
+                                         == 'AVAILABLE'}"
+                              th:action="@{/my-reservations/{id}/cancel(
+                                  id=${reservation.id()}
+                              )}"
+                              method="post">
+                            <button class="button button-secondary"
+                                    type="submit">
+                                Cancel
+                            </button>
+                        </form>
+
+                        <span class="muted"
+                              th:unless="${reservation.status() == 'WAITING'
+                                          or reservation.status()
+                                             == 'AVAILABLE'}">
+                            Completed
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section class="empty-state"
+                 th:if="${reservations.empty}">
+            <h2>No reservations yet</h2>
+            <a class="button" th:href="@{/books}">
+                Browse books
+            </a>
+        </section>
+    </div>
+</main>
+</body>
+</html>

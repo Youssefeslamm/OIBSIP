@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>My Fines | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/dashboard}">
+            Digital Library
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/my-loans}">
+                My loans
+            </a>
+            <a class="button button-secondary"
+               th:href="@{/dashboard}">
+                Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Account charges</div>
+        <h1 class="page-title">My fines</h1>
+
+        <div class="table-wrapper" th:if="${!fines.empty}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Overdue days</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Paid at</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="fine : ${fines}">
+                    <td th:text="${fine.bookTitle()}">Book</td>
+
+                    <td th:text="${fine.overdueDays()}">0</td>
+
+                    <td>
+                        ₹<span th:text="${fine.amount()}">0.00</span>
+                    </td>
+
+                    <td>
+                        <span class="status"
+                              th:classappend="${fine.status() == 'PAID'}
+                                  ? ' status-success'
+                                  : ' status-warning'"
+                              th:text="${fine.status()}">
+                            UNPAID
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:if="${fine.paidAt() != null}"
+                              th:text="${#temporals.format(
+                                  fine.paidAt(),
+                                  'dd MMM yyyy HH:mm'
+                              )}">
+                        </span>
+
+                        <span class="muted"
+                              th:unless="${fine.paidAt() != null}">
+                            —
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section class="empty-state" th:if="${fines.empty}">
+            <h2>No fines</h2>
+            <p class="muted">
+                You currently have no overdue charges.
+            </p>
+        </section>
+    </div>
+</main>
+</body>
+</html>

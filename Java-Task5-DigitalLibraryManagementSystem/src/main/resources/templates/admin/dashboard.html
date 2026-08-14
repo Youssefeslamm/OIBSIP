@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/admin}">
+            Digital Library Admin
+        </a>
+
+        <div class="nav-actions">
+            <a class="button button-secondary"
+               th:href="@{/books}">
+                Catalogue
+            </a>
+
+            <a class="button button-secondary"
+               th:href="@{/dashboard}">
+                User dashboard
+            </a>
+
+            <form th:action="@{/logout}" method="post">
+                <button class="button button-secondary"
+                        type="submit">
+                    Sign out
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Administration</div>
+        <h1 class="page-title">Library overview</h1>
+
+        <div class="alert alert-success"
+             th:if="${successMessage}"
+             th:text="${successMessage}">
+        </div>
+
+        <div class="alert alert-danger"
+             th:if="${errorMessage}"
+             th:text="${errorMessage}">
+        </div>
+
+        <div class="nav-actions">
+            <a class="button" th:href="@{/admin/books}">
+                Manage books
+            </a>
+        </div>
+
+        <section class="admin-stats">
+            <article class="card">
+                <strong th:text="${users.totalElements}">0</strong>
+                <span>Registered members</span>
+            </article>
+
+            <article class="card">
+                <strong th:text="${openLoans.size()}">0</strong>
+                <span>Open loans</span>
+            </article>
+
+            <article class="card">
+                <strong th:text="${unpaidFines.size()}">0</strong>
+                <span>Unpaid fines</span>
+            </article>
+
+            <article class="card">
+                <strong th:text="${openMessages.size()}">0</strong>
+                <span>Open messages</span>
+            </article>
+        </section>
+
+        <section class="admin-section">
+            <h2>Members</h2>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="user : ${users.content}">
+                        <td th:text="${user.displayName()}">Name</td>
+                        <td th:text="${user.email()}">Email</td>
+                        <td th:text="${#strings.listJoin(
+                            user.roles(), ', '
+                        )}">
+                        </td>
+                        <td>
+                            <span class="status"
+                                  th:classappend="${user.enabled()}
+                                      ? ' status-success'
+                                      : ' status-warning'"
+                                  th:text="${user.enabled()}
+                                      ? 'Enabled'
+                                      : 'Disabled'">
+                            </span>
+                        </td>
+                        <td>
+                            <form th:if="${user.enabled()}"
+                                  th:action="@{/admin/users/{id}/disable(
+                                      id=${user.id()}
+                                  )}"
+                                  method="post">
+                                <button class="button button-danger"
+                                        type="submit">
+                                    Disable
+                                </button>
+                            </form>
+
+                            <form th:unless="${user.enabled()}"
+                                  th:action="@{/admin/users/{id}/enable(
+                                      id=${user.id()}
+                                  )}"
+                                  method="post">
+                                <button class="button"
+                                        type="submit">
+                                    Enable
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="admin-section">
+            <h2>Open loans</h2>
+
+            <div class="table-wrapper"
+                 th:if="${!openLoans.empty}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Book</th>
+                        <th>Issued</th>
+                        <th>Due</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="loan : ${openLoans}">
+                        <td th:text="${loan.userEmail()}">Email</td>
+                        <td th:text="${loan.bookTitle()}">Book</td>
+                        <td th:text="${#temporals.format(
+                            loan.issuedAt(), 'dd MMM yyyy'
+                        )}">
+                        </td>
+                        <td th:text="${#temporals.format(
+                            loan.dueAt(), 'dd MMM yyyy'
+                        )}">
+                        </td>
+                        <td th:text="${loan.status()}">ACTIVE</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="muted" th:if="${openLoans.empty}">
+                No open loans.
+            </p>
+        </section>
+
+        <section class="admin-section">
+            <h2>Unpaid fines</h2>
+
+            <div class="table-wrapper"
+                 th:if="${!unpaidFines.empty}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Book</th>
+                        <th>Days</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="fine : ${unpaidFines}">
+                        <td th:text="${fine.userEmail()}">Email</td>
+                        <td th:text="${fine.bookTitle()}">Book</td>
+                        <td th:text="${fine.overdueDays()}">0</td>
+                        <td>
+                            ₹<span th:text="${fine.amount()}">0.00</span>
+                        </td>
+                        <td>
+                            <form th:action="@{/admin/fines/{id}/pay(
+                                      id=${fine.id()}
+                                  )}"
+                                  method="post">
+                                <button class="button" type="submit">
+                                    Mark paid
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="muted" th:if="${unpaidFines.empty}">
+                No unpaid fines.
+            </p>
+        </section>
+
+        <section class="admin-section">
+            <h2>Open messages</h2>
+
+            <div class="message-list"
+                 th:if="${!openMessages.empty}">
+                <article class="card"
+                         th:each="message : ${openMessages}">
+                    <div class="message-header">
+                        <div>
+                            <strong th:text="${message.subject()}">
+                                Subject
+                            </strong>
+
+                            <div class="muted"
+                                 th:text="${message.userEmail()}">
+                                Email
+                            </div>
+                        </div>
+
+                        <form th:action="@{/admin/messages/{id}/resolve(
+                                  id=${message.id()}
+                              )}"
+                              method="post">
+                            <button class="button" type="submit">
+                                Resolve
+                            </button>
+                        </form>
+                    </div>
+
+                    <p th:text="${message.message()}">
+                        Message
+                    </p>
+                </article>
+            </div>
+
+            <p class="muted" th:if="${openMessages.empty}">
+                No open messages.
+            </p>
+        </section>
+    </div>
+</main>
+</body>
+</html>

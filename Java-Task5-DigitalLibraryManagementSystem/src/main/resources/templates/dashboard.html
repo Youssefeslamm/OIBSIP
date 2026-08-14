@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+    <title>Dashboard | Digital Library</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container navbar-inner">
+        <a class="brand" th:href="@{/dashboard}">
+            Digital Library
+        </a>
+
+        <form th:action="@{/logout}" method="post">
+            <button class="button button-secondary" type="submit">
+                Sign out
+            </button>
+        </form>
+    </div>
+</nav>
+
+<main class="page-section">
+    <div class="container">
+        <div class="eyebrow">Account dashboard</div>
+
+        <h1 th:text="'Welcome, ' + ${user.displayName()}">
+            Welcome
+        </h1>
+
+        <p class="muted" th:text="${user.email()}">
+            email@example.com
+        </p>
+
+        <section class="dashboard-grid">
+            <a class="card dashboard-link" th:href="@{/books}">
+                <h2>Browse books</h2>
+                <p class="muted">
+                    Search the catalogue and find available books.
+                </p>
+            </a>
+
+            <a class="card dashboard-link" th:href="@{/my-loans}">
+                <h2>My loans</h2>
+                <p class="muted">
+                    Review borrowed books and upcoming due dates.
+                </p>
+            </a>
+
+            <a class="card dashboard-link"
+               th:href="@{/my-reservations}">
+                <h2>Reservations</h2>
+                <p class="muted">
+                    Track waiting and available reservations.
+                </p>
+            </a>
+            <a class="card dashboard-link" th:href="@{/my-fines}">
+                <h2>My fines</h2>
+                <p class="muted">
+                    Review overdue charges and payment status.
+                </p>
+            </a>
+
+            <a class="card dashboard-link" th:href="@{/contact}">
+                <h2>Contact library</h2>
+                <p class="muted">
+                    Submit a query and track its status.
+                </p>
+            </a>
+            <a class="card dashboard-link"
+               th:if="${isAdmin}"
+               th:href="@{/admin}">
+                <h2>Administration</h2>
+                <p class="muted">
+                    Manage members, loans, fines, and user queries.
+                </p>
+            </a>
+        </section>
+    </div>
+</main>
+</body>
+</html>

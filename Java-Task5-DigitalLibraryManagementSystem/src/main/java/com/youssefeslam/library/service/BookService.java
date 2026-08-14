@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.youssefeslam.library.exception.BusinessRuleException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 @Transactional(readOnly = true)
@@ -166,5 +168,24 @@ public class BookService {
         }
 
         return value.trim();
+    }
+    public Page<BookResponse> findAll(Pageable pageable) {
+        return bookRepository.findAll(pageable)
+                .map(this::toResponse);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        Book book = requireBook(id);
+
+        try {
+            bookRepository.delete(book);
+            bookRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new BusinessRuleException(
+                    "This book cannot be permanently deleted because "
+                            + "it has loans or reservations. Archive it instead."
+            );
+        }
     }
 }
