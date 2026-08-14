@@ -2,7 +2,9 @@ package com.youssefeslam.library.repository;
 
 import com.youssefeslam.library.entity.Reservation;
 import com.youssefeslam.library.entity.ReservationStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,9 +28,12 @@ public interface ReservationRepository
             Long userId
     );
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Reservation>
     findFirstByBookIdAndStatusOrderByReservedAtAsc(
             Long bookId,
             ReservationStatus status
     );
+
+
 }

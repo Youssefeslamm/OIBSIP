@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -105,13 +106,26 @@ public class ReservationService {
         User user = userService.requireByEmail(email);
 
         Reservation reservation = reservationRepository
-                .findByIdAndUserId(reservationId, user.getId())
+                .findByIdAndUserId(
+                        reservationId,
+                        user.getId()
+                )
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with ID: "
                                 + reservationId
                 ));
 
+        boolean wasAvailable =
+                reservation.getStatus()
+                        == ReservationStatus.AVAILABLE;
+
+        Long bookId = reservation.getBook().getId();
+
         reservation.cancel(LocalDateTime.now(clock));
+
+        if (wasAvailable) {
+            notifyNextWaitingUser(bookId);
+        }
 
         return toResponse(reservation);
     }
@@ -129,6 +143,35 @@ public class ReservationService {
                                 COLLECTION_WINDOW_DAYS
                         )
                 );
+    }
+
+    @Transactional
+    public void validateAndFulfillForIssue(
+            User user,
+            Book book
+    ) {
+        Optional<Reservation> availableReservation =
+                reservationRepository
+                        .findFirstByBookIdAndStatusOrderByReservedAtAsc(
+                                book.getId(),
+                                ReservationStatus.AVAILABLE
+                        );
+
+        if (availableReservation.isEmpty()) {
+            return;
+        }
+
+        Reservation reservation = availableReservation.get();
+
+        if (!reservation.getUser()
+                .getId()
+                .equals(user.getId())) {
+            throw new BusinessRuleException(
+                    "This available copy is reserved for another user"
+            );
+        }
+
+        reservation.fulfill(LocalDateTime.now(clock));
     }
 
     private ReservationResponse toResponse(

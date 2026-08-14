@@ -81,6 +81,11 @@ public class LoanService {
             );
         }
 
+        reservationService.validateAndFulfillForIssue(
+                user,
+                book
+        );
+
         book.issueCopy();
 
         Loan loan = new Loan(
@@ -123,6 +128,10 @@ public class LoanService {
 
         loan.markReturned(returnTime);
         book.returnCopy();
+
+        reservationService.notifyNextWaitingUser(
+                book.getId()
+        );
         reservationService.notifyNextWaitingUser(book.getId());
 
         if (overdueDays > 0
