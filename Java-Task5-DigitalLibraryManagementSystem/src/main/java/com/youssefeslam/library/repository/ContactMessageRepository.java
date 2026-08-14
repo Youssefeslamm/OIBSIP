@@ -9,7 +9,9 @@ import java.util.List;
 public interface ContactMessageRepository
         extends JpaRepository<ContactMessage, Long> {
 
-    List<ContactMessage> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<ContactMessage> findByUserIdOrderByCreatedAtDesc(
+            Long userId
+    );
 
     List<ContactMessage> findByStatusOrderByCreatedAtAsc(
             MessageStatus status
