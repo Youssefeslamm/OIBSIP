@@ -1,0 +1,112 @@
+{
+  "info": {
+    "_postman_id": "4b60b50a-7b94-4e68-bddb-8dbcb3734084",
+    "name": "OIBSIP - Digital Library Management System",
+    "description": "Complete REST API collection for Youssef Eslam's Oasis Infobyte Java Task 5. Uses HTTP Basic authentication; Register User is public.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {"key": "username", "value": "{{basicUsername}}", "type": "string"},
+      {"key": "password", "value": "{{basicPassword}}", "type": "string"}
+    ]
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:8080"},
+    {"key": "basicUsername", "value": ""},
+    {"key": "basicPassword", "value": ""},
+    {"key": "categoryId", "value": "1"},
+    {"key": "bookId", "value": "1"},
+    {"key": "loanId", "value": "1"},
+    {"key": "fineId", "value": "1"},
+    {"key": "reservationId", "value": "1"},
+    {"key": "messageId", "value": "1"},
+    {"key": "userId", "value": "1"}
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"displayName\": \"Demo User\",\n  \"email\": \"demo.user@example.com\",\n  \"password\": \"ReplaceWithAPrivatePassword\"\n}", "options": {"raw": {"language": "json"}}},
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {"name": "Current User", "request": {"method": "GET", "url": "{{baseUrl}}/api/auth/me"}}
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {"name": "List Categories", "request": {"method": "GET", "url": "{{baseUrl}}/api/categories"}},
+        {"name": "Get Category", "request": {"method": "GET", "url": "{{baseUrl}}/api/categories/{{categoryId}}"}},
+        {"name": "Admin - Create Category", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"name\": \"Cloud Computing\",\n  \"description\": \"Distributed systems and cloud platforms\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{baseUrl}}/api/categories"}}
+      ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        {"name": "List Active Books", "request": {"method": "GET", "url": "{{baseUrl}}/api/books?page=0&size=12&sort=title,asc"}},
+        {"name": "Get Book", "request": {"method": "GET", "url": "{{baseUrl}}/api/books/{{bookId}}"}},
+        {"name": "Search Books", "request": {"method": "GET", "url": "{{baseUrl}}/api/books/search?query=java&page=0&size=12"}},
+        {"name": "Books by Category", "request": {"method": "GET", "url": "{{baseUrl}}/api/books/category/{{categoryId}}?page=0&size=12"}},
+        {"name": "Admin - Create Book", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"title\": \"Test-Driven Development\",\n  \"author\": \"Kent Beck\",\n  \"isbn\": \"9780321146533\",\n  \"categoryId\": {{categoryId}},\n  \"totalQuantity\": 3\n}", "options": {"raw": {"language": "json"}}}, "url": "{{baseUrl}}/api/books"}},
+        {"name": "Admin - Update Book", "request": {"method": "PUT", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"title\": \"Test-Driven Development by Example\",\n  \"author\": \"Kent Beck\",\n  \"isbn\": \"9780321146533\",\n  \"categoryId\": {{categoryId}},\n  \"totalQuantity\": 4\n}"}, "url": "{{baseUrl}}/api/books/{{bookId}}"}},
+        {"name": "Admin - Archive Book", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/books/{{bookId}}/archive"}},
+        {"name": "Admin - Restore Book", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/books/{{bookId}}/restore"}},
+        {"name": "Admin - Delete Book", "request": {"method": "DELETE", "url": "{{baseUrl}}/api/books/{{bookId}}"}}
+      ]
+    },
+    {
+      "name": "Loans and Returns",
+      "item": [
+        {"name": "Issue Book", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"bookId\": {{bookId}}\n}"}, "url": "{{baseUrl}}/api/loans"}},
+        {"name": "My Loans", "request": {"method": "GET", "url": "{{baseUrl}}/api/loans/me"}},
+        {"name": "Return Book", "request": {"method": "POST", "url": "{{baseUrl}}/api/loans/{{loanId}}/return"}},
+        {"name": "Admin - Open Loans", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/loans"}}
+      ]
+    },
+    {
+      "name": "Fines",
+      "item": [
+        {"name": "My Fines", "request": {"method": "GET", "url": "{{baseUrl}}/api/fines/me"}},
+        {"name": "Admin - Unpaid Fines", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/fines?status=UNPAID"}},
+        {"name": "Admin - Paid Fines", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/fines?status=PAID"}},
+        {"name": "Admin - Mark Fine Paid", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/admin/fines/{{fineId}}/pay"}}
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {"name": "Create Reservation", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"bookId\": {{bookId}}\n}"}, "url": "{{baseUrl}}/api/reservations"}},
+        {"name": "My Reservations", "request": {"method": "GET", "url": "{{baseUrl}}/api/reservations/me"}},
+        {"name": "Cancel Reservation", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/reservations/{{reservationId}}/cancel"}}
+      ]
+    },
+    {
+      "name": "Contact Messages",
+      "item": [
+        {"name": "Submit Message", "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"subject\": \"Book request\",\n  \"message\": \"Could you add a new distributed systems title?\"\n}"}, "url": "{{baseUrl}}/api/messages"}},
+        {"name": "My Messages", "request": {"method": "GET", "url": "{{baseUrl}}/api/messages/me"}},
+        {"name": "Admin - Open Messages", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/messages?status=OPEN"}},
+        {"name": "Admin - Resolved Messages", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/messages?status=RESOLVED"}},
+        {"name": "Admin - Resolve Message", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/admin/messages/{{messageId}}/resolve"}}
+      ]
+    },
+    {
+      "name": "Admin Users",
+      "item": [
+        {"name": "List Users", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/users?page=0&size=20"}},
+        {"name": "Get User", "request": {"method": "GET", "url": "{{baseUrl}}/api/admin/users/{{userId}}"}},
+        {"name": "Disable User", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/admin/users/{{userId}}/disable"}},
+        {"name": "Enable User", "request": {"method": "PATCH", "url": "{{baseUrl}}/api/admin/users/{{userId}}/enable"}}
+      ]
+    }
+  ]
+}
